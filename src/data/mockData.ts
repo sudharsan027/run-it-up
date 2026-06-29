@@ -55,6 +55,54 @@ export function calculatePerformance(laptopGPU: string, gameDemand: number): Per
   return { tag, fps, resolution, battery, score: power - gameDemand };
 }
 
+export interface ComparisonMetrics {
+  lowFps: number;
+  medFps: number;
+  highFps: number;
+  ultraFps: number;
+  batteryGaming: string;
+  maxResolution: string;
+  cpuUsage: number;
+  gpuUsage: number;
+  fpsHigh: number;
+}
+
+export function calculateDetailedComparison(laptop: Laptop, gameDemand: number): ComparisonMetrics {
+  const power = getLaptopPower(laptop.gpu);
+  const diff = power - gameDemand;
+  
+  const highFps = Math.max(15, Math.min(144, Math.round(60 + diff * 7)));
+  const lowFps = Math.min(165, Math.round(highFps * 1.55));
+  const medFps = Math.min(144, Math.round(highFps * 1.25));
+  const ultraFps = Math.max(10, Math.round(highFps * 0.82));
+
+  let maxResolution = "1080p";
+  if (power >= 8.5) maxResolution = "4K";
+  else if (power >= 6.5) maxResolution = "1440p";
+
+  let batteryGaming = "1.8h";
+  if (laptop.tier === "ENTHUSIAST") batteryGaming = "1.2h";
+  else if (laptop.tier === "HIGH-END") batteryGaming = "1.6h";
+  else if (laptop.tier === "MID-RANGE") batteryGaming = "1.9h";
+  else batteryGaming = "2.3h";
+
+  const cpuUsage = Math.max(45, Math.min(98, Math.round(85 - (power * 2.5) + (gameDemand * 3))));
+  const gpuUsage = Math.max(60, Math.min(99, Math.round(95 - (diff * 4))));
+
+  return {
+    lowFps,
+    medFps,
+    highFps,
+    ultraFps,
+    batteryGaming,
+    maxResolution,
+    cpuUsage,
+    gpuUsage,
+    fpsHigh: highFps
+  };
+}
+
+
 export const laptops: Laptop[] = [
   // ENTHUSIAST TIER
   { id: "e1", name: "MSI Raider GE78 HX", price: 3499, tier: "ENTHUSIAST", gpu: "RTX 4090", cpu: "Intel i9-13980HX", ram: "64GB DDR5", storage: "4TB NVMe" },
