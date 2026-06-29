@@ -41,8 +41,11 @@ function App() {
 
   return (
     <div className="min-h-screen bg-[#09090b] text-white font-sans relative overflow-x-hidden flex flex-col">
-      {/* Background Grid */}
+      {/* Background Grid & Fixed Emblem Watermark */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080801a_1px,transparent_1px),linear-gradient(to_bottom,#8080801a_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none fixed"></div>
+      <div className="fixed inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] z-0 overflow-hidden">
+        <img src="/favicon.svg" alt="" className="w-[800px] h-[800px] max-w-none transform -rotate-12 scale-125" />
+      </div>
 
       <Navbar activeTab={activeTab} onHome={handleHome} onCompare={handleCompare} />
 
