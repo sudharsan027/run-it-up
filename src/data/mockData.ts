@@ -1,23 +1,15 @@
-export interface Game {
-  id: string;
-  title: string;
-  genre: string;
-  releaseYear: string;
-  iconInitials: string;
-  demandLevel: number; // 1 (low) to 10 (high)
-  minReq: { cpu: string; gpu: string; ram: string; storage: string };
-  recReq: { cpu: string; gpu: string; ram: string; storage: string };
-}
+import { getGPUPowerFromText, estimateDemandLevel } from '../api/rawg';
+import type { RawgGame } from '../api/rawg';
 
 export interface Laptop {
   id: string;
   name: string;
   price: number;
-  tier: "HIGH-END" | "MID-RANGE" | "BUDGET";
-  powerLevel: number; // 1 (low) to 10 (high)
+  tier: "HIGH-END" | "MID-RANGE" | "BUDGET" | "ENTHUSIAST";
   gpu: string;
   cpu: string;
-  ramStorage: string;
+  ram: string;
+  storage: string;
 }
 
 export interface PerformanceResult {
@@ -25,128 +17,104 @@ export interface PerformanceResult {
   fps: number;
   battery: string;
   resolution: string;
+  score: number;
 }
 
-export const games: Game[] = [
-  { 
-    id: "1", title: "Cyberpunk 2077", genre: "RPG", releaseYear: "2020", iconInitials: "CP", demandLevel: 9,
-    minReq: { cpu: "Intel Core i7-6700", gpu: "GTX 1060", ram: "8 GB", storage: "70 GB SSD" },
-    recReq: { cpu: "Intel Core i7-12700", gpu: "RTX 2060", ram: "16 GB", storage: "70 GB SSD" }
-  },
-  { 
-    id: "2", title: "GTA V", genre: "Action", releaseYear: "2013", iconInitials: "GT", demandLevel: 4,
-    minReq: { cpu: "Intel Core 2 Quad CPU Q6600", gpu: "9800 GT", ram: "4 GB", storage: "72 GB" },
-    recReq: { cpu: "Intel Core i5 3470", gpu: "GTX 660", ram: "8 GB", storage: "72 GB" }
-  },
-  { 
-    id: "3", title: "Valorant", genre: "FPS", releaseYear: "2020", iconInitials: "VL", demandLevel: 2,
-    minReq: { cpu: "Intel Core 2 Duo E8400", gpu: "Intel HD 4000", ram: "4 GB", storage: "20 GB" },
-    recReq: { cpu: "Intel i3-4150", gpu: "GT 730", ram: "4 GB", storage: "20 GB" }
-  },
-  { 
-    id: "4", title: "Elden Ring", genre: "RPG", releaseYear: "2022", iconInitials: "ER", demandLevel: 8,
-    minReq: { cpu: "Intel Core i5-8400", gpu: "GTX 1060", ram: "12 GB", storage: "60 GB" },
-    recReq: { cpu: "Intel Core i7-8700K", gpu: "GTX 1070", ram: "16 GB", storage: "60 GB" }
-  },
-  { 
-    id: "5", title: "Fortnite", genre: "Battle Royale", releaseYear: "2017", iconInitials: "FN", demandLevel: 5,
-    minReq: { cpu: "Core i3-3225", gpu: "Intel HD 4000", ram: "8 GB", storage: "30 GB" },
-    recReq: { cpu: "Core i5-7300U", gpu: "GTX 960", ram: "8 GB", storage: "30 GB" }
-  },
-  { 
-    id: "6", title: "Hogwarts Legacy", genre: "RPG", releaseYear: "2023", iconInitials: "HL", demandLevel: 9,
-    minReq: { cpu: "Intel Core i5-6600", gpu: "GTX 960", ram: "16 GB", storage: "85 GB" },
-    recReq: { cpu: "Intel Core i7-8700", gpu: "GTX 1080 Ti", ram: "16 GB", storage: "85 GB" }
-  },
-  { 
-    id: "7", title: "Minecraft", genre: "Sandbox", releaseYear: "2011", iconInitials: "MC", demandLevel: 2,
-    minReq: { cpu: "Intel Core i3-3210", gpu: "Intel HD Graphics 4000", ram: "4 GB", storage: "1 GB" },
-    recReq: { cpu: "Intel Core i5-4690", gpu: "GTX 750", ram: "8 GB", storage: "4 GB" }
-  },
-  { id: "8", title: "Red Dead Redemption 2", genre: "Action", releaseYear: "2018", iconInitials: "RD", demandLevel: 8, minReq: { cpu: "Intel Core i5-2500K", gpu: "GTX 770", ram: "8 GB", storage: "150 GB" }, recReq: { cpu: "Intel Core i7-4770K", gpu: "GTX 1060", ram: "12 GB", storage: "150 GB" } },
-  { id: "9", title: "Call of Duty: Warzone", genre: "FPS", releaseYear: "2020", iconInitials: "CW", demandLevel: 7, minReq: { cpu: "Intel Core i3-4340", gpu: "GTX 670", ram: "8 GB", storage: "175 GB" }, recReq: { cpu: "Intel Core i5-2500K", gpu: "GTX 970", ram: "12 GB", storage: "175 GB" } },
-  { id: "10", title: "Apex Legends", genre: "Battle Royale", releaseYear: "2019", iconInitials: "AL", demandLevel: 5, minReq: { cpu: "Intel Core i3-6300", gpu: "GT 640", ram: "6 GB", storage: "56 GB" }, recReq: { cpu: "Intel i5 3570K", gpu: "GTX 970", ram: "8 GB", storage: "56 GB" } },
-  { id: "11", title: "The Witcher 3", genre: "RPG", releaseYear: "2015", iconInitials: "W3", demandLevel: 6, minReq: { cpu: "Intel Core i5-2500K", gpu: "GTX 660", ram: "6 GB", storage: "35 GB" }, recReq: { cpu: "Intel Core i7 3770", gpu: "GTX 770", ram: "8 GB", storage: "35 GB" } },
-  { id: "12", title: "God of War Ragnarok", genre: "Action RPG", releaseYear: "2024", iconInitials: "GW", demandLevel: 9, minReq: { cpu: "Intel Core i5-4670K", gpu: "GTX 1060", ram: "8 GB", storage: "190 GB" }, recReq: { cpu: "Intel Core i5-11600K", gpu: "RTX 2070", ram: "16 GB", storage: "190 GB" } },
-  { id: "13", title: "EA Sports FC 24", genre: "Sports", releaseYear: "2023", iconInitials: "FC", demandLevel: 5, minReq: { cpu: "Intel Core i5-6600K", gpu: "GTX 1050 Ti", ram: "8 GB", storage: "100 GB" }, recReq: { cpu: "Intel Core i7-6700", gpu: "GTX 1660", ram: "12 GB", storage: "100 GB" } },
-  { id: "14", title: "League of Legends", genre: "MOBA", releaseYear: "2009", iconInitials: "LL", demandLevel: 1, minReq: { cpu: "Intel Core i3-530", gpu: "HD 4600", ram: "2 GB", storage: "16 GB" }, recReq: { cpu: "Intel Core i5-3300", gpu: "GTX 560", ram: "4 GB", storage: "16 GB" } },
-  { id: "15", title: "Spider-Man Remastered", genre: "Action", releaseYear: "2022", iconInitials: "SM", demandLevel: 7, minReq: { cpu: "Intel Core i3-4160", gpu: "GTX 950", ram: "8 GB", storage: "75 GB" }, recReq: { cpu: "Intel Core i5-4670", gpu: "GTX 1060", ram: "16 GB", storage: "75 GB" } },
-  { id: "16", title: "Resident Evil 4 Remake", genre: "Horror", releaseYear: "2023", iconInitials: "RE", demandLevel: 8, minReq: { cpu: "AMD Ryzen 3 1200", gpu: "Radeon RX 560", ram: "8 GB", storage: "73 GB" }, recReq: { cpu: "Intel Core i7 8700", gpu: "GTX 1070", ram: "16 GB", storage: "73 GB" } },
-  { id: "17", title: "Starfield", genre: "RPG", releaseYear: "2023", iconInitials: "SF", demandLevel: 10, minReq: { cpu: "Intel Core i7-6800K", gpu: "GTX 1070 Ti", ram: "16 GB", storage: "125 GB SSD" }, recReq: { cpu: "Intel Core i5-10600K", gpu: "RTX 2080", ram: "16 GB", storage: "125 GB SSD" } },
-  { id: "18", title: "Counter-Strike 2", genre: "FPS", releaseYear: "2023", iconInitials: "CS", demandLevel: 3, minReq: { cpu: "Intel Core i5 750", gpu: "1GB GPU", ram: "8 GB", storage: "85 GB" }, recReq: { cpu: "Intel Core i5-6600K", gpu: "GTX 1060", ram: "16 GB", storage: "85 GB" } },
-  { id: "19", title: "Baldur's Gate 3", genre: "RPG", releaseYear: "2023", iconInitials: "BG", demandLevel: 8, minReq: { cpu: "Intel I5 4690", gpu: "GTX 970", ram: "8 GB", storage: "150 GB" }, recReq: { cpu: "Intel i7 8700K", gpu: "RTX 2060", ram: "16 GB", storage: "150 GB" } },
-  { id: "20", title: "Diablo IV", genre: "Action RPG", releaseYear: "2023", iconInitials: "D4", demandLevel: 6, minReq: { cpu: "Intel Core i5-2500K", gpu: "GTX 660", ram: "8 GB", storage: "90 GB" }, recReq: { cpu: "Intel Core i5-4670K", gpu: "GTX 970", ram: "16 GB", storage: "90 GB" } },
-  { id: "21", title: "Horizon Forbidden West", genre: "Action RPG", releaseYear: "2024", iconInitials: "HZ", demandLevel: 9, minReq: { cpu: "Intel Core i3-8100", gpu: "GTX 1650", ram: "16 GB", storage: "150 GB" }, recReq: { cpu: "Intel Core i5-8600", gpu: "RTX 3060", ram: "16 GB", storage: "150 GB" } },
-  { id: "22", title: "Helldivers 2", genre: "Shooter", releaseYear: "2024", iconInitials: "HD", demandLevel: 8, minReq: { cpu: "Intel Core i7-4790K", gpu: "GTX 1050 Ti", ram: "8 GB", storage: "100 GB" }, recReq: { cpu: "Intel Core i7-9700K", gpu: "RTX 2060", ram: "16 GB", storage: "100 GB" } },
-  { id: "23", title: "Palworld", genre: "Survival", releaseYear: "2024", iconInitials: "PW", demandLevel: 7, minReq: { cpu: "i5-3570K", gpu: "GTX 1050", ram: "16 GB", storage: "40 GB" }, recReq: { cpu: "i9-9900K", gpu: "RTX 2070", ram: "32 GB", storage: "40 GB" } },
-  { id: "24", title: "Alan Wake 2", genre: "Horror", releaseYear: "2023", iconInitials: "AW", demandLevel: 10, minReq: { cpu: "Intel i5-7600K", gpu: "RTX 2060", ram: "16 GB", storage: "90 GB" }, recReq: { cpu: "Ryzen 7 3700X", gpu: "RTX 3070", ram: "16 GB", storage: "90 GB" } }
-];
+export function getLaptopPower(gpu: string): number {
+  return getGPUPowerFromText(gpu);
+}
 
-export const laptops: Laptop[] = [
-  { id: "1", name: "ASUS ROG Strix G16", price: 2199, tier: "HIGH-END", powerLevel: 9, gpu: "RTX 4070", cpu: "Intel i9-13980HX", ramStorage: "16GB RAM - 1000GB" },
-  { id: "2", name: "ASUS ROG Zephyrus G14", price: 1599, tier: "HIGH-END", powerLevel: 8, gpu: "RTX 4060", cpu: "AMD Ryzen 9 7940HS", ramStorage: "16GB RAM - 512GB" },
-  { id: "3", name: "ASUS TUF Gaming F15", price: 1100, tier: "MID-RANGE", powerLevel: 5, gpu: "RTX 4050", cpu: "Intel i7-12700H", ramStorage: "16GB RAM - 512GB" },
-  { id: "4", name: "Lenovo Legion 5 Pro", price: 1499, tier: "HIGH-END", powerLevel: 8, gpu: "RTX 4060", cpu: "AMD Ryzen 7 7745HX", ramStorage: "16GB RAM - 512GB" },
-  { id: "5", name: "Lenovo Legion 7i", price: 2500, tier: "HIGH-END", powerLevel: 10, gpu: "RTX 4080", cpu: "Intel i9-13900HX", ramStorage: "32GB RAM - 2000GB" },
-  { id: "6", name: "Lenovo IdeaPad Gaming 3", price: 850, tier: "BUDGET", powerLevel: 3, gpu: "RTX 3050", cpu: "AMD Ryzen 5 5600H", ramStorage: "8GB RAM - 256GB" },
-  { id: "7", name: "HP Victus 15", price: 699, tier: "BUDGET", powerLevel: 2, gpu: "GTX 1650", cpu: "Intel i5-12500H", ramStorage: "8GB RAM - 512GB" },
-  { id: "8", name: "HP OMEN 16", price: 1299, tier: "HIGH-END", powerLevel: 8, gpu: "RTX 4060", cpu: "AMD Ryzen 7 7840HS", ramStorage: "16GB RAM - 1000GB" },
-  { id: "9", name: "HP OMEN 17", price: 2100, tier: "HIGH-END", powerLevel: 10, gpu: "RTX 4080", cpu: "Intel i7-13700HX", ramStorage: "32GB RAM - 1000GB" },
-  { id: "10", name: "Dell G15 5530", price: 999, tier: "MID-RANGE", powerLevel: 5, gpu: "RTX 4050", cpu: "Intel i5-13450HX", ramStorage: "16GB RAM - 512GB" },
-  { id: "11", name: "Dell G16 7630", price: 1299, tier: "MID-RANGE", powerLevel: 7, gpu: "RTX 4060", cpu: "Intel i7-13650HX", ramStorage: "16GB RAM - 1000GB" },
-  { id: "12", name: "Dell Alienware m16", price: 1700, tier: "HIGH-END", powerLevel: 9, gpu: "RTX 4070", cpu: "Intel i7-13700HX", ramStorage: "16GB RAM - 1000GB" },
-  { id: "13", name: "Acer Nitro 5", price: 849, tier: "MID-RANGE", powerLevel: 4, gpu: "RTX 4050", cpu: "AMD Ryzen 5 7535HS", ramStorage: "16GB RAM - 512GB" },
-  { id: "14", name: "Acer Predator Helios 16", price: 1450, tier: "HIGH-END", powerLevel: 9, gpu: "RTX 4070", cpu: "Intel i7-13700HX", ramStorage: "16GB RAM - 1000GB" },
-  { id: "15", name: "Acer Aspire 7", price: 549, tier: "BUDGET", powerLevel: 1, gpu: "GTX 1650", cpu: "AMD Ryzen 5 5500U", ramStorage: "8GB RAM - 512GB" },
-  { id: "16", name: "MSI Katana 15", price: 1099, tier: "MID-RANGE", powerLevel: 6, gpu: "RTX 4060", cpu: "Intel i7-12650H", ramStorage: "16GB RAM - 1000GB" },
-  { id: "17", name: "MSI Raider GE78 HX", price: 3499, tier: "HIGH-END", powerLevel: 10, gpu: "RTX 4090", cpu: "Intel i9-13980HX", ramStorage: "32GB RAM - 2000GB" },
-  { id: "18", name: "MSI Thin GF63", price: 599, tier: "BUDGET", powerLevel: 2, gpu: "RTX 2050", cpu: "Intel i5-12450H", ramStorage: "8GB RAM - 512GB" },
-  { id: "19", name: "Razer Blade 16", price: 4299, tier: "HIGH-END", powerLevel: 10, gpu: "RTX 4090", cpu: "Intel i9-13950HX", ramStorage: "32GB RAM - 2000GB" },
-  { id: "20", name: "Razer Blade 14", price: 2399, tier: "HIGH-END", powerLevel: 9, gpu: "RTX 4070", cpu: "AMD Ryzen 9 7940HS", ramStorage: "16GB RAM - 1000GB" },
-  { id: "21", name: "Custom PC Budget Gaming PC", price: 420, tier: "BUDGET", powerLevel: 3, gpu: "GTX 1650", cpu: "Intel i3-12100F", ramStorage: "8GB RAM - 500GB" },
-  { id: "22", name: "Custom PC Mid-Range Gaming PC", price: 800, tier: "MID-RANGE", powerLevel: 6, gpu: "RTX 3060", cpu: "AMD Ryzen 5 5600X", ramStorage: "16GB RAM - 1000GB" },
-  { id: "23", name: "Custom PC High-End Gaming PC", price: 1500, tier: "HIGH-END", powerLevel: 9, gpu: "RTX 4070 Ti", cpu: "Intel i7-13700K", ramStorage: "32GB RAM - 2000GB" },
-  { id: "24", name: "Custom PC Ultra Gaming PC", price: 3000, tier: "HIGH-END", powerLevel: 10, gpu: "RTX 4090", cpu: "Intel i9-13900K", ramStorage: "64GB RAM - 4000GB" },
-  { id: "25", name: "Custom PC AMD Enthusiast PC", price: 2200, tier: "HIGH-END", powerLevel: 10, gpu: "RX 7900 XTX", cpu: "AMD Ryzen 9 7950X", ramStorage: "32GB RAM - 2000GB" }
-];
+export function getGameDemand(game: RawgGame, recReqText?: string): number {
+  if (recReqText) {
+    const parsed = getGPUPowerFromText(recReqText);
+    if (parsed > 1) return parsed;
+  }
+  return estimateDemandLevel(game.metacritic, game.released);
+}
 
-export function calculatePerformance(laptop: Laptop, game: Game): PerformanceResult {
-  const diff = laptop.powerLevel - game.demandLevel;
-  
+export function calculatePerformance(laptopGPU: string, gameDemand: number): PerformanceResult {
+  const power = getLaptopPower(laptopGPU);
+  const diff = power - gameDemand;
   let tag: PerformanceResult["tag"] = "Not Playable";
   let fps = 0;
-  let resolution = "1080p";
-  let battery = "1.5h";
+  let resolution = "720p";
+  let battery = "3h";
 
-  if (diff >= 2) {
-    tag = "Ultra";
-    fps = 60 + (diff * 8) + Math.floor(Math.random() * 10);
-    resolution = "4K";
-    battery = "1h";
-  } else if (diff >= 0) {
-    tag = "High";
-    fps = 60 + (diff * 5) + Math.floor(Math.random() * 5);
-    resolution = "1440p";
-    battery = "1.2h";
-  } else if (diff >= -2) {
-    tag = "Medium";
-    fps = 45 + ((diff + 2) * 5) + Math.floor(Math.random() * 5);
-    resolution = "1440p";
-    battery = "1.5h";
-  } else if (diff >= -5) {
-    tag = "Low Settings";
-    fps = 30 + ((diff + 5) * 5) + Math.floor(Math.random() * 5);
-    resolution = "1080p";
-    battery = "2h";
+  if (diff >= 2.5) {
+    tag = "Ultra"; fps = Math.min(144, 90 + Math.round(diff * 6)); resolution = "4K"; battery = "1h";
+  } else if (diff >= 0.5) {
+    tag = "High"; fps = Math.min(144, 70 + Math.round(diff * 8)); resolution = "1440p"; battery = "1.2h";
+  } else if (diff >= -1.5) {
+    tag = "Medium"; fps = Math.max(45, 55 + Math.round(diff * 8)); resolution = "1440p"; battery = "1.5h";
+  } else if (diff >= -4) {
+    tag = "Low Settings"; fps = Math.max(25, 38 + Math.round(diff * 5)); resolution = "1080p"; battery = "2h";
   } else {
-    tag = "Not Playable";
-    fps = 15;
-    resolution = "720p";
-    battery = "2.5h";
+    tag = "Not Playable"; fps = Math.max(5, 15 + Math.round(diff * 2)); resolution = "720p"; battery = "2.5h";
   }
 
-  // Cap FPS to 144
-  if (fps > 144) fps = 144;
-
-  return { tag, fps, resolution, battery };
+  return { tag, fps, resolution, battery, score: power - gameDemand };
 }
+
+export const laptops: Laptop[] = [
+  // ENTHUSIAST TIER
+  { id: "e1", name: "MSI Raider GE78 HX", price: 3499, tier: "ENTHUSIAST", gpu: "RTX 4090", cpu: "Intel i9-13980HX", ram: "64GB DDR5", storage: "4TB NVMe" },
+  { id: "e2", name: "Razer Blade 18", price: 4299, tier: "ENTHUSIAST", gpu: "RTX 4090", cpu: "Intel i9-14900HX", ram: "32GB DDR5", storage: "2TB NVMe" },
+  { id: "e3", name: "Razer Blade 16", price: 3499, tier: "ENTHUSIAST", gpu: "RTX 4090", cpu: "Intel i9-13950HX", ram: "32GB DDR5", storage: "2TB NVMe" },
+  { id: "e4", name: "ASUS ROG Strix SCAR 18", price: 3999, tier: "ENTHUSIAST", gpu: "RTX 4090", cpu: "Intel i9-14900HX", ram: "64GB DDR5", storage: "4TB NVMe" },
+  { id: "e5", name: "ASUS ROG Strix SCAR 16", price: 3599, tier: "ENTHUSIAST", gpu: "RTX 4080", cpu: "AMD Ryzen 9 7945HX", ram: "32GB DDR5", storage: "2TB NVMe" },
+  { id: "e6", name: "MSI GT76 Titan", price: 3299, tier: "ENTHUSIAST", gpu: "RTX 4080", cpu: "Intel i9-13980HX", ram: "32GB DDR5", storage: "2TB NVMe" },
+  { id: "e7", name: "Custom PC Ultra Gaming", price: 3000, tier: "ENTHUSIAST", gpu: "RTX 4090", cpu: "Intel i9-13900K", ram: "64GB DDR5", storage: "4TB NVMe" },
+  { id: "e8", name: "Custom PC AMD Enthusiast", price: 2800, tier: "ENTHUSIAST", gpu: "RX 7900 XTX", cpu: "AMD Ryzen 9 7950X", ram: "64GB DDR5", storage: "2TB NVMe" },
+  // HIGH-END
+  { id: "h1", name: "ASUS ROG Strix G16", price: 2199, tier: "HIGH-END", gpu: "RTX 4070", cpu: "Intel i9-13980HX", ram: "16GB DDR5", storage: "1TB NVMe" },
+  { id: "h2", name: "ASUS ROG Zephyrus G14", price: 1599, tier: "HIGH-END", gpu: "RTX 4060", cpu: "AMD Ryzen 9 7940HS", ram: "16GB DDR5", storage: "512GB NVMe" },
+  { id: "h3", name: "ASUS ROG Zephyrus G16", price: 2499, tier: "HIGH-END", gpu: "RTX 4070", cpu: "Intel Ultra 9 185H", ram: "32GB DDR5", storage: "1TB NVMe" },
+  { id: "h4", name: "Lenovo Legion 7i", price: 2500, tier: "HIGH-END", gpu: "RTX 4080", cpu: "Intel i9-13900HX", ram: "32GB DDR5", storage: "2TB NVMe" },
+  { id: "h5", name: "Lenovo Legion 5 Pro", price: 1499, tier: "HIGH-END", gpu: "RTX 4060", cpu: "AMD Ryzen 7 7745HX", ram: "16GB DDR5", storage: "512GB NVMe" },
+  { id: "h6", name: "Lenovo Legion 9i", price: 3999, tier: "HIGH-END", gpu: "RTX 4090", cpu: "Intel i9-13980HX", ram: "32GB DDR5", storage: "2TB NVMe" },
+  { id: "h7", name: "HP OMEN 16", price: 1299, tier: "HIGH-END", gpu: "RTX 4060", cpu: "AMD Ryzen 7 7840HS", ram: "16GB DDR5", storage: "1TB NVMe" },
+  { id: "h8", name: "HP OMEN 17", price: 2100, tier: "HIGH-END", gpu: "RTX 4080", cpu: "Intel i7-13700HX", ram: "32GB DDR5", storage: "1TB NVMe" },
+  { id: "h9", name: "HP OMEN Transcend 16", price: 2499, tier: "HIGH-END", gpu: "RTX 4070", cpu: "Intel Ultra 7 155H", ram: "32GB DDR5", storage: "2TB NVMe" },
+  { id: "h10", name: "Dell Alienware m16 R2", price: 1799, tier: "HIGH-END", gpu: "RTX 4070", cpu: "Intel Ultra 9 185H", ram: "32GB DDR5", storage: "1TB NVMe" },
+  { id: "h11", name: "Dell Alienware x16", price: 2999, tier: "HIGH-END", gpu: "RTX 4090", cpu: "Intel i9-13980HX", ram: "32GB DDR5", storage: "2TB NVMe" },
+  { id: "h12", name: "Acer Predator Helios 18", price: 2299, tier: "HIGH-END", gpu: "RTX 4080", cpu: "Intel i9-14900HX", ram: "32GB DDR5", storage: "2TB NVMe" },
+  { id: "h13", name: "Acer Predator Helios 16", price: 1450, tier: "HIGH-END", gpu: "RTX 4070", cpu: "Intel i7-13700HX", ram: "16GB DDR5", storage: "1TB NVMe" },
+  { id: "h14", name: "MSI Titan GT77", price: 3999, tier: "HIGH-END", gpu: "RTX 4090", cpu: "Intel i9-12900HX", ram: "64GB DDR5", storage: "4TB NVMe" },
+  { id: "h15", name: "Razer Blade 14", price: 2399, tier: "HIGH-END", gpu: "RTX 4070", cpu: "AMD Ryzen 9 7940HS", ram: "16GB DDR5", storage: "1TB NVMe" },
+  { id: "h16", name: "Samsung Galaxy Book4 Ultra", price: 2499, tier: "HIGH-END", gpu: "RTX 4070", cpu: "Intel Ultra 9 185H", ram: "32GB LPDDR5", storage: "1TB NVMe" },
+  { id: "h17", name: "ASUS ProArt Studiobook 16", price: 2799, tier: "HIGH-END", gpu: "RTX 4070", cpu: "Intel i9-13980HX", ram: "32GB DDR5", storage: "2TB NVMe" },
+  { id: "h18", name: "Custom PC High-End Gaming", price: 1500, tier: "HIGH-END", gpu: "RTX 4070 Ti", cpu: "Intel i7-13700K", ram: "32GB DDR5", storage: "2TB NVMe" },
+  { id: "h19", name: "Custom PC AMD High-End", price: 1800, tier: "HIGH-END", gpu: "RX 7900 XT", cpu: "AMD Ryzen 9 7900X", ram: "32GB DDR5", storage: "2TB NVMe" },
+  { id: "h20", name: "Lenovo ThinkPad X1 Extreme Gen5", price: 2699, tier: "HIGH-END", gpu: "RTX 3080 Ti", cpu: "Intel i9-12900H", ram: "32GB DDR5", storage: "2TB NVMe" },
+  // MID-RANGE
+  { id: "m1", name: "ASUS TUF Gaming F15", price: 1100, tier: "MID-RANGE", gpu: "RTX 4050", cpu: "Intel i7-12700H", ram: "16GB DDR5", storage: "512GB NVMe" },
+  { id: "m2", name: "ASUS TUF Gaming A15", price: 999, tier: "MID-RANGE", gpu: "RTX 4060", cpu: "AMD Ryzen 7 7745HX", ram: "16GB DDR5", storage: "512GB NVMe" },
+  { id: "m3", name: "ASUS ROG Strix G15", price: 1299, tier: "MID-RANGE", gpu: "RTX 3060", cpu: "AMD Ryzen 7 6800H", ram: "16GB DDR5", storage: "1TB NVMe" },
+  { id: "m4", name: "Lenovo Legion 5", price: 1099, tier: "MID-RANGE", gpu: "RTX 4060", cpu: "AMD Ryzen 7 7745HX", ram: "16GB DDR5", storage: "512GB NVMe" },
+  { id: "m5", name: "Lenovo Legion Slim 5", price: 1199, tier: "MID-RANGE", gpu: "RTX 4060", cpu: "AMD Ryzen 7 7840HS", ram: "16GB DDR5", storage: "512GB NVMe" },
+  { id: "m6", name: "HP OMEN 16 AMD", price: 1199, tier: "MID-RANGE", gpu: "RTX 4060", cpu: "AMD Ryzen 7 7840HS", ram: "16GB DDR5", storage: "1TB NVMe" },
+  { id: "m7", name: "Dell G16 7630", price: 1299, tier: "MID-RANGE", gpu: "RTX 4060", cpu: "Intel i7-13650HX", ram: "16GB DDR5", storage: "1TB NVMe" },
+  { id: "m8", name: "Dell G15 5530", price: 999, tier: "MID-RANGE", gpu: "RTX 4050", cpu: "Intel i5-13450HX", ram: "16GB DDR5", storage: "512GB NVMe" },
+  { id: "m9", name: "Dell Alienware m15 R7", price: 1599, tier: "MID-RANGE", gpu: "RTX 3070 Ti", cpu: "Intel i7-12700H", ram: "16GB DDR5", storage: "1TB NVMe" },
+  { id: "m10", name: "Acer Nitro 5", price: 849, tier: "MID-RANGE", gpu: "RTX 4050", cpu: "AMD Ryzen 5 7535HS", ram: "16GB DDR5", storage: "512GB NVMe" },
+  { id: "m11", name: "Acer Nitro 16", price: 999, tier: "MID-RANGE", gpu: "RTX 4060", cpu: "AMD Ryzen 7 7745HX", ram: "16GB DDR5", storage: "512GB NVMe" },
+  { id: "m12", name: "MSI Katana 15", price: 1099, tier: "MID-RANGE", gpu: "RTX 4060", cpu: "Intel i7-12650H", ram: "16GB DDR5", storage: "1TB NVMe" },
+  { id: "m13", name: "MSI Cyborg 15", price: 899, tier: "MID-RANGE", gpu: "RTX 4060", cpu: "Intel i7-13620H", ram: "16GB DDR5", storage: "512GB NVMe" },
+  { id: "m14", name: "MSI Pulse 15", price: 1099, tier: "MID-RANGE", gpu: "RTX 4070", cpu: "Intel i7-13700H", ram: "16GB DDR5", storage: "1TB NVMe" },
+  { id: "m15", name: "Gigabyte Aorus 16", price: 1299, tier: "MID-RANGE", gpu: "RTX 4060", cpu: "Intel i7-13700H", ram: "16GB DDR5", storage: "1TB NVMe" },
+  { id: "m16", name: "Custom PC Mid-Range Gaming", price: 800, tier: "MID-RANGE", gpu: "RTX 3060", cpu: "AMD Ryzen 5 5600X", ram: "16GB DDR4", storage: "1TB NVMe" },
+  { id: "m17", name: "Custom PC Intel Mid-Range", price: 950, tier: "MID-RANGE", gpu: "RTX 4060", cpu: "Intel i5-13600K", ram: "32GB DDR5", storage: "1TB NVMe" },
+  { id: "m18", name: "HP Victus 16", price: 949, tier: "MID-RANGE", gpu: "RTX 4060", cpu: "Intel i7-13700H", ram: "16GB DDR5", storage: "512GB NVMe" },
+  // BUDGET
+  { id: "b1", name: "Lenovo IdeaPad Gaming 3", price: 850, tier: "BUDGET", gpu: "RTX 3050", cpu: "AMD Ryzen 5 5600H", ram: "8GB DDR4", storage: "256GB NVMe" },
+  { id: "b2", name: "HP Victus 15", price: 699, tier: "BUDGET", gpu: "GTX 1650", cpu: "Intel i5-12500H", ram: "8GB DDR4", storage: "512GB NVMe" },
+  { id: "b3", name: "Dell G15 5520", price: 749, tier: "BUDGET", gpu: "RTX 3050", cpu: "Intel i5-12500H", ram: "8GB DDR4", storage: "256GB NVMe" },
+  { id: "b4", name: "Acer Aspire 7", price: 549, tier: "BUDGET", gpu: "GTX 1650", cpu: "AMD Ryzen 5 5500U", ram: "8GB DDR4", storage: "512GB NVMe" },
+  { id: "b5", name: "Acer Nitro V 15", price: 749, tier: "BUDGET", gpu: "RTX 4050", cpu: "Intel i5-13420H", ram: "8GB DDR5", storage: "512GB NVMe" },
+  { id: "b6", name: "MSI Thin GF63", price: 599, tier: "BUDGET", gpu: "RTX 2050", cpu: "Intel i5-12450H", ram: "8GB DDR4", storage: "512GB NVMe" },
+  { id: "b7", name: "ASUS TUF Gaming FX505", price: 679, tier: "BUDGET", gpu: "GTX 1650", cpu: "AMD Ryzen 5 3550H", ram: "8GB DDR4", storage: "512GB NVMe" },
+  { id: "b8", name: "Lenovo IdeaPad Gaming 3i", price: 729, tier: "BUDGET", gpu: "RTX 3050 Ti", cpu: "Intel i5-12450H", ram: "8GB DDR4", storage: "512GB NVMe" },
+  { id: "b9", name: "HP Gaming Laptop 15", price: 599, tier: "BUDGET", gpu: "GTX 1650 Ti", cpu: "AMD Ryzen 5 5600H", ram: "8GB DDR4", storage: "256GB NVMe" },
+  { id: "b10", name: "Custom PC Budget Gaming", price: 420, tier: "BUDGET", gpu: "GTX 1650", cpu: "Intel i3-12100F", ram: "8GB DDR4", storage: "500GB SSD" },
+  { id: "b11", name: "Custom PC AMD Budget", price: 520, tier: "BUDGET", gpu: "RX 6600", cpu: "AMD Ryzen 5 5500", ram: "16GB DDR4", storage: "500GB SSD" },
+];
